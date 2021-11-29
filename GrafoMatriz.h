@@ -193,25 +193,24 @@ class GrafoMatriz {
             }
             for (int i = 0; i < this->getNumVerts(); i++) {
                 for (int j = 0; j < this->getNumVerts(); j++) {
-                    caminos[i][j] = this->adyacente(i,j) ? 1 : 0;
+                    caminos[i][j] = this->adyacente(i,j) ? 1 : 0;   //operador ternario, sirve para
+                                                                    //tomar decisiones
                 }  
             }
 
-            for (int k = 0; k < n; k++) { // etapas de programación dinámica
-                for (int i = 0; i < n; i++) {
-                    for (int j = 0; j < n; j++) {
-                        if (caminos[i][k] * caminos[k][j]) {
-                            //observe el índice k de la programación dinámica
-                            caminos[i][j] = 1;
-                        }
+            for (int k = 0; k < this->getNumVerts(); k++) { // etapas de programación dinámica
+                for (int i = 0; i < this->getNumVerts(); i++) {
+                    for (int j = 0; j < this->getNumVerts(); j++) {
+                        caminos[i][j]= caminos[i][j] || caminos[i][k] && caminos[k][j];
                     }
                 }        
             }
 
-            for (int recorrido = 0; recorrido < this.getNumVerts(); recorrido++) {
-                for (int dentro = 0; dentro < this.getNumVerts(); dentro++) {
-                    cout << caminos[recorrido][dentro] << endl;
+            for (int recorrido = 0; recorrido < this->getNumVerts(); recorrido++) {
+                for (int dentro = 0; dentro < this->getNumVerts(); dentro++) {
+                    cout << caminos[recorrido][dentro] << "  ";
                 }
+                cout << endl;
             }
         }
 
