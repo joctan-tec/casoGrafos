@@ -14,6 +14,9 @@
 #include "Galea.h"
 #include "Inti.h"
 #include "Katmeo.h"
+
+#define N_ATOMOS 3
+#define NUMERO_TOTAL 30
  
 using json = nlohmann::json;
 using namespace std;
@@ -34,59 +37,62 @@ class InitUniverseGraph{
             lecturaArchivo >> archivoJson;  
             lecturaArchivo.close();
 
-            Grafo grafoInicial(true);
-            for (int atomo = 0; atomo < 3; atomo++) {
-
+            Grafo grafoInicial(true);   //se crea el Grafo a retornar
+            for (int atomo = 0; atomo < N_ATOMOS; atomo++) {
+                //se saca la cantidad del atomo a evaluarse 
                 int cantidadxTipo = archivoJson["Atomos"][atomo]["cantidad"];
-                string tipo = archivoJson["Atomos"][atomo]["tipo"];
+                //se saca el tipo del atomo
+                string tipo = archivoJson["Atomos"][atomo]["tipo"]; 
+
+                //se evalua cada cada uno y se crean las cantidades correspondientes
                 if (tipo == "Galea"){
                     for (int cantidades = 0; cantidades < cantidadxTipo; cantidades++) {
-                        grafoInicial.addNode(new Galea(cantidades,"Galea")); 
+                        grafoInicial.addNode(new Galea(cantidades)); 
                     }
                 } else{
                 }if (tipo == "Inti"){
                     for (int cantidades = 10; cantidades < cantidadxTipo*2; cantidades++) {
-                        grafoInicial.addNode(new Inti(cantidades,"Inti")); 
+                        grafoInicial.addNode(new Inti(cantidades)); 
                     }
                 }else{ 
                 }if (tipo == "Katmeo"){
                     for (int cantidades = 20; cantidades < cantidadxTipo*3; cantidades++) {
-                        grafoInicial.addNode(new Katmeo(cantidades,"Katmeo"));                         
+                        grafoInicial.addNode(new Katmeo(cantidades));                         
                     }
                 }
             }
 
             //CONECTA TODOS LOS ATOMOS ENTRE ELLOS SECUENCIALMENTE
-            for (int i = 0; i < 30; i++) {
+            for (int i = 0; i < NUMERO_TOTAL; i++) {
                 random_device rd;
                 default_random_engine eng(rd());
-                uniform_int_distribution<int> distr(1,21);
-                if (i+1 == 30){
+                uniform_int_distribution<int> distr(1,21);  //los pesos entre 1 y 21
+                if (i+1 == NUMERO_TOTAL){
                     break;
                 }
                 grafoInicial.addArc(i,i+1,distr(eng));          
             }
             
+            //ACA SE ESTABLECEN LAS RELACIONES
+            for (int relaciones = 0; relaciones < N_ATOMOS; relaciones++) {
 
- 
-            for (int relaciones = 0; relaciones < 3; relaciones++) {
-                //menor o igual
                 string tipoPrimero = archivoJson["Atomos"][relaciones]["tipo"];
                 int rangoInicialPeso;
                 int rangoFinalPeso;
 
-                
+                //ACA SE DAN LAS RELACIONES POR CADA ATOMO
                 for (int relacionados = 0; relacionados < 2; relacionados++) {
                     int principioPrimero = archivoJson["Atomos"][relaciones]["relaciones"][relacionados]["idInicial"];
                     int maximoPrimero = archivoJson["Atomos"][relaciones]["relaciones"][relacionados]["idFinal"];
 
-
+                    //CARACTERISTICAS DE LOS ATOMOS A RELACIONARSE CON EL PRINCIPAL
                     string tipoSegundo = archivoJson["Atomos"][relaciones]["relaciones"][relacionados]["tipo"];
                     int principioSegundo = archivoJson["Atomos"][relaciones]["relaciones"][relacionados]["destinoIdInicial"];
                     int maximoSegundo = archivoJson["Atomos"][relaciones]["relaciones"][relacionados]["destinoIdFinal"];
                     rangoInicialPeso = archivoJson["Atomos"][relaciones]["relaciones"][relacionados]["pesos"][0];
                     rangoFinalPeso = archivoJson["Atomos"][relaciones]["relaciones"][relacionados]["pesos"][1];
 
+                    //Aca se crean los arcos segun cada atomo principal y con el que se va a relacionar
                     for (int xTipo = principioPrimero; xTipo <= maximoPrimero; xTipo++) {
                         random_device rd;
                         default_random_engine eng(rd());
