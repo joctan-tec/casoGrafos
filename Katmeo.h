@@ -1,17 +1,18 @@
-#ifndef _KATMEO_ 
-#define _KATMEO_ 1
+#ifndef KATMEO 
+#define KATMEO 1
 #include "Atomo.h"
 
 class Katmeo : public Atomo {
     private:
-        int id;
-        string nombre;
 
     public:
-        Katmeo(int pId, string pNombre){
+        Katmeo(int pId){
             this->setIdAtomo(pId);
             this->setId(pId);
-            this->setNombre(pNombre);
+            this->setNombre("Katmeo");
+            this->setMolecula(false);
+            this->setOrganismo(false);
+            this->setParticipa(false);
         }
 
 };
