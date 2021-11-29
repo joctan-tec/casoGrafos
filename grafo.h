@@ -7,6 +7,7 @@
 #include <queue>
 #include <stack>
 #include "Arco.h"
+#include "Atomo.h"
 
 #define MAX 1000
 #define Node pair< int , int > //definimos el nodo como un par( first , second ) donde first es el vertice adyacente y second el peso de la arista
@@ -27,10 +28,12 @@ class Grafo {
         vector<NodoGrafo*> listaNodos;
         bool esDirigido = true;
         int totalArcos = 0;
+        queue<int> pesosCamino;
         std::map<int,NodoGrafo*> hashNodos;
         int distancia[ MAX ];      //distancia[ u ] distancia de vértice inicial a vértice con ID = u
         bool visitado[ MAX ];      //para vértices visitados
         int previo[ MAX ];         //para la impresion de caminos
+        int previoPesos[ MAX ];     //para los pesos de los arcos de caminos
         priority_queue< Node , vector<Node> , cmp > colaCaminosCortos; //priority queue propia del c++, usamos el comparador definido para que el de menor valor este en el tope
 
 
@@ -71,6 +74,7 @@ class Grafo {
                 distancia[i] = INF;
                 visitado[i] = false;
                 previo[i] = -1;
+                previoPesos[i] = -1;
             }
         }
 
@@ -78,6 +82,7 @@ class Grafo {
             if (distancia[pActual] + pPeso < distancia[pAdyacente] ) {
                 distancia[pAdyacente] = distancia[pActual] + pPeso;
                 previo[pAdyacente] = pActual;
+                previoPesos[pAdyacente] = pPeso;
                 colaCaminosCortos.push( Node(pAdyacente, distancia[pAdyacente] ) );
             }
         }
@@ -293,6 +298,18 @@ class Grafo {
             return result;
         }
 
+        queue<int> getCaminosPesos(){
+            return this->pesosCamino;
+        }
+        
+        void caminoCorto(int pDestino){
+            if( previo[pDestino] != -1 ) {    //si aun poseo un vertice previo
+                caminoCorto( previo[ pDestino ]);  //recursivamente sigo explorando
+            }
+            pesosCamino.push(pDestino);
+            //printf("%d " , pDestino );        //terminada la recursion imprimo los vertices recorridos
+        }
+
 
         vector<int> dijkstraNodoANodo(INodo* pOrigen, INodo* pDestino){
             init();
@@ -319,6 +336,7 @@ class Grafo {
                         peso = arco->getPeso();
                         if (!visitado[adyacente]){
                             searchMinPath(actual, adyacente, peso);
+                            //pesosCamino.push(peso);
                             NodoGrafo* puntoDestino = this->getNodo(pDestino->getId());
                             if (ady->getInfo() == puntoDestino->getInfo()){
                                 for (int j = 0; j < this->getSize(); j++) {
@@ -395,25 +413,179 @@ class Grafo {
         }
 
 
-        void reproduccionAtomos(INodo* pNodo){
-            vector<INodo*> recorrido = this->deepPath(pNodo);
-            vector<int> distanciasXNodo;
-            int comparador = 0;
-            for (int i = 0; i < recorrido.size(); i++) {
-                INodo* nodo = recorrido.at(i);
-                distanciasXNodo = this->algoritmoDijkstra(nodo);
-                for (int j = 0; j < distanciasXNodo.size(); j++) {
-                    int distanciaActual = distanciasXNodo.at(j);
-                    if (distanciaActual > comparador) {
-                        //ACA DEBO DE OBTENER EL NOMBRE DEL ATOMO QUE SE ESTA ANALIZANDO Y COMPARAR SI ES 
-                        //DIFERENTE AL PRINCIPAL Y GUARDAR LA DISTANCIA (INT) 
-                        //Y LUEGO DEBO DE SACAR LO MISMO, PERO LA MENOR DISTANCIA CON EL
-                        //ATOMO DE IGUAL NOMBRE
-                        if (this->getListaNodos().at(j)->getInfo())
+        NodoGrafo* obtieneMasCorto(vector<Arco*> pAdyacentes){
+            Arco* arcoAux = pAdyacentes.at(0);
+            int entero = 99999999;
+            NodoGrafo* menor = (NodoGrafo*)arcoAux->getDestino();
+
+            bool entra=false;
+
+            for (int indiceArcos=0; indiceArcos<pAdyacentes.size(); indiceArcos++) {
+                        Arco* arco = pAdyacentes.at(indiceArcos);
+                        NodoGrafo* adyacente = (NodoGrafo*)arco->getDestino();
+                        if (!adyacente->getVisitado()) {
+                             
+                            if(arco->getPeso() < entero){
+                                arcoAux=arco;
+                                menor=adyacente;
+                                entra=true;
+                                entero = arco->getPeso();
+
+                            }
+                            adyacente->setProcesado(true);
+                        }
+                    }
+
+                    NodoGrafo* adyacente = (NodoGrafo*)arcoAux->getOrigen(); 
+                    menor->setDistancia(adyacente->getInfo()->getDistancia()+arcoAux->getPeso());             
+                    menor->setVisitado(true);
+                    // menor->getInfo()->setDistancia();       
+                    return menor;
+        }
+
+
+        vector<INodo*> dijkstra(int pOrigen){
+            INodo* nodo = this->getNodo(pOrigen)->getInfo();
+            return this->dijkstra(nodo);
+        }
+
+        vector<INodo*> dijkstra(INodo* pOrigen){
+            vector<INodo*> result;
+            vector<Arco*> vectorRutas;
+            stack<NodoGrafo*> pilaResultado;
+            int visitados=0;
+            resetNodes();
+
+
+            NodoGrafo* puntoPartida = this->getNodo(pOrigen->getId());
+            puntoPartida->setProcesado(true);
+            
+            pilaResultado.push(puntoPartida);
+            result.push_back(pOrigen);
+            puntoPartida->setVisitado(true);
+            
+            visitados++;
+
+            vector<Arco*>*adyacentes=puntoPartida->getArcs();
+            
+            for (int i = 0; i < adyacentes->size(); i++)
+            {
+                
+                std::cout<<"Anadi: "<<adyacentes->at(i)->getPeso()<<endl;
+                vectorRutas.push_back(adyacentes->at(i));
+                
+            }
+            do
+            {
+                while (true)
+                {
+                    NodoGrafo* menor = obtieneMasCorto(vectorRutas);
+                    pilaResultado.push(menor);
+                    
+                    result.push_back(menor->getInfo());
+                    menor->setVisitado(true);
+
+                    vector<Arco*>*adyacentes= menor->getArcs();
+                    for (int i = 0; i < adyacentes->size(); i++){
+                        vectorRutas.push_back(adyacentes->at(i));
+                    }
+                    
+                    break;
+                  
+                }
+                visitados++;
+            
+            } while (visitados<this->getSize()-1);
+
+            for (int i = 0; i < 5; i++)
+            {
+                vectorRutas.pop_back();
+            }
+            
+
+
+            return result;
+
+        }
+
+        void reproduccionAtomos(int pNodo){
+            INodo* nodo = this->getNodo(pNodo)->getInfo();
+            this->reproduccionAtomos(nodo);
+        }
+
+
+        void reproduccionAtomos(INodo* pNodo) {
+            //vector<INodo*> recorrido = this->deepPath(pNodo);
+            vector<int> distanciasXNodo = this->algoritmoDijkstra(pNodo);
+            Atomo atomoPrincipal = *((Atomo*)(void*)pNodo);
+            Atomo atomoComparado;
+            vector<NodoGrafo*> nodos = this->getListaNodos();
+
+            int pesoAtomoMayor = 0;
+            int pesoAtomoMenor = 100;
+
+            int pesoMenorArco = 9999;
+
+
+            for (int i = 0; i < distanciasXNodo.size(); i++) {
+                int distanciaActual = distanciasXNodo.at(i);
+                atomoComparado = *((Atomo*)(void*)nodos.at(i)->getInfo());
+                if (distanciaActual > pesoAtomoMayor) {
+                    //ACA DEBO DE OBTENER EL NOMBRE DEL ATOMO QUE SE ESTA ANALIZANDO Y COMPARAR SI ES 
+                    //DIFERENTE AL PRINCIPAL Y GUARDAR LA DISTANCIA (INT) 
+                    //Y LUEGO DEBO DE SACAR LO MISMO, PERO LA MENOR DISTANCIA CON EL
+                    //ATOMO DE IGUAL NOMBRE
+                    //LUEGO QUE YA TENGO LA MAXIMA Y LA MINIMA DEBO DE COMPARAR SI LA MINIMA DE IGUAL ATOMOS ES MENOR QUE 
+                    //LA MAXIMA DE DIFERENTE ATOMO Y SI ESTO SE CUMPLE PUES SE HACE LA REPRODUCCION       
+                    if (atomoPrincipal.getNombre() != atomoComparado.getNombre()) {
+                        pesoAtomoMayor = i;
+                    }
+                } else 
+                if (distanciaActual < pesoAtomoMenor){
+                    if (atomoPrincipal.getNombre() == atomoComparado.getNombre()) {
+                        pesoAtomoMenor = i;
+                        this->caminoCorto(atomoComparado.getId());
+                        queue<int> resultadoCamino = this->getCaminosPesos();
+                        resultadoCamino.pop();
+
+                        //recorrer todos los adyacentes de el primero en este caso 3
+                        //luego preguntar si el getDestino es igual al top()
+                        
+                        int numeroA = resultadoCamino.front();
+                        
+                        NodoGrafo* nodoActual = getNodo(pNodo->getId());
+                        vector<Arco*>* adyacentes =  nodoActual->getArcs();
+                        while (!resultadoCamino.empty()) {
+                            resultadoCamino.pop();
+                            for (int i = 0; i < adyacentes->size(); i++)
+                            {
+                                Arco* arco = adyacentes->at(i);
+                                NodoGrafo* ady = (NodoGrafo*)arco->getDestino();
+                                int adyacente = ady->getInfo()->getId();
+                                if (adyacente == numeroA) {
+                                    int peso = arco->getPeso();
+                                    if (peso < pesoMenorArco){
+                                        pesoMenorArco = peso;
+                                    }
+                                }
+                            }
+                            if (resultadoCamino.size() > 0) {
+                                numeroA = resultadoCamino.front();
+                                nodoActual = getNodo(numeroA);
+                                adyacentes = nodoActual->getArcs();   
+                            }                        
+                        }              
                     }
                 }
             }
-            
+
+            if (pesoAtomoMayor > pesoAtomoMenor){
+                //se cumple reproduccion
+                this->addArc(&atomoPrincipal, &atomoComparado, pesoMenorArco);
+                Atomo* atomoHijo = new Atomo(this->getSize(),atomoPrincipal.getNombre());
+                this->addNode(atomoHijo);
+                this->addArc(&atomoPrincipal, atomoHijo, pesoMenorArco);
+            }        
         }
 
 

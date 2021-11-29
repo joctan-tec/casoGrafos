@@ -3,13 +3,13 @@
 #include "Arco.h"
 #include <vector>
 #include "INodo.h"
- 
+  
 using namespace std;
 
 class NodoGrafo {
     private:
         INodo* dato;
-        vector<Arco*>* listaArcos;
+        vector<Arco*>* listaArcos; 
         bool visitado = false;
         bool procesado = false;
 
@@ -51,6 +51,14 @@ class NodoGrafo {
         }
         void setProcesado(bool pProcesado) {
         	this->procesado = pProcesado;
+        }
+
+        void setDistancia(int pNumero){
+            this->dato->setDistancia(pNumero);
+        }
+
+        int getDistancia(){
+            return this->dato->getDistancia();
         }
 
 };
