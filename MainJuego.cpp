@@ -53,6 +53,7 @@ int main(){
         
         cout << "Cantidad de atomos: " << grafoGlobal.getSize() << endl;
         contador++;
+        grafoGlobal.resetNodesParticipated();
 
     }
 
