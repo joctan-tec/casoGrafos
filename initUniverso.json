@@ -1,0 +1,71 @@
+{
+    "Atomos":
+    [
+        {
+            "tipo": "Galea",
+            "cantidad": 10,
+            "relaciones": [ 
+                { 
+                    "idInicial": 0,
+                    "idFinal": 4,
+                    "tipo": "Katmeo",
+                    "destinoIdInicial": 20,
+                    "destinoIdFinal": 24,
+                    "pesos": [7, 12]
+                },
+                {
+                    "idInicial": 5,
+                    "idFinal": 9,
+                    "tipo": "Inti",
+                    "destinoIdInicial": 10,
+                    "destinoIdFinal": 14,
+                    "pesos": [3, 14]
+                }   
+            ]
+        },
+        {
+            "tipo": "Inti",
+            "cantidad": 10,
+            "relaciones": [
+                {
+                    "idInicial": 10,
+                    "idFinal": 14,
+                    "tipo": "Katmeo",
+                    "destinoIdInicial": 25,
+                    "destinoIdFinal": 29,
+                    "pesos": [15, 21]
+                },
+                {
+                    "idInicial": 15,
+                    "idFinal": 19,
+                    "tipo": "Galea",
+                    "destinoIdInicial": 0,
+                    "destinoIdFinal": 4,
+                    "pesos": [8, 19]
+                }   
+            ]
+        },
+        {
+            "tipo": "Katmeo",
+            "cantidad": 10,
+            "relaciones": [
+                {
+                    "idInicial": 20,
+                    "idFinal": 24,
+                    "tipo": "Inti",
+                    "destinoIdInicial": 15,
+                    "destinoIdFinal": 19,
+                    "pesos": [2, 18]
+                },
+                {
+                    "idInicial": 25,
+                    "idFinal": 29,
+                    "tipo": "Galea",
+                    "destinoIdInicial": 5,
+                    "destinoIdFinal": 9,
+                    "pesos": [3, 19]
+                }   
+            ]
+        }
+    ]
+}
