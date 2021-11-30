@@ -623,10 +623,10 @@ class Grafo {
                 }
             }
             //se cumple reproduccion
-            if (pesoAtomoMayor > pesoAtomoMenor){
+            if (distancia[pesoAtomoMayor] > distancias[pesoAtomoMenor]){
                 //se crea el arco entre el principal y el comparado con el arco menor
                 //cout << atomoPrincipal.getNombre() << "se reproduce con "<< atomoComparado.getNombre() << endl;
-                this->addArc(&atomoPrincipal, &atomoComparado, pesoMenorArco);
+                this->addArc(&atomoPrincipal, &atomoComparado, distancia[pesoMenorArco]);
 
                 //crea el hijo 
                 Atomo* atomoHijo = new Atomo(this->getSize(),atomoPrincipal.getNombre());
@@ -634,7 +634,7 @@ class Grafo {
                 this->addNode(atomoHijo);
 
                 //y crea el arco entre el padre y el hijo
-                this->addArc(&atomoPrincipal, atomoHijo, pesoMenorArco);
+                this->addArc(&atomoPrincipal, atomoHijo, distancia[pesoMenorArco]);
                 atomoPrincipal.setParticipa(true);      //setea el atomo como que ya participo
             }        
         }
